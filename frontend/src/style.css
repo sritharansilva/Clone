@@ -425,7 +425,7 @@
 }
 
 .legend-available {
-  background: #dcebd3;
+  background: #d1879a;
 }
 
 .legend-partial {
@@ -433,7 +433,7 @@
 }
 
 .legend-unavailable {
-  background: #efd0cc;
+  background: #da7b6e;
 }
 
 .booking-calendar-message,

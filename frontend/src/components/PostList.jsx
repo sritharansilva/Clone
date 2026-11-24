@@ -71,7 +71,7 @@ export default function PostList({
         <div className="eyebrow muted">Alternative space</div>
         <h2>Latest offering<span className="accent-period">.</span></h2>
       </div>
-      <button className="button button-outline new-post" onClick={onCreate}><Plus size={17} /> New post</button>
+      <button className="button button-outline new-post" onClick={onCreate}><Plus size={17} /> New listing</button>
     </div>
     <div className="toolbar">
       <div className="search-box">
