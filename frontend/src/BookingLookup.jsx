@@ -132,11 +132,19 @@ export default function BookingLookup({ onBack }) {
         )}
 
         {booking.status === 'rejected' && (
-          <p>
-            Unfortunately, your booking request was not approved.
-            Please contact the studio owner if you need more information.
-          </p>
-        )}
+  <>
+    <p>
+      Sorry, your booking request was rejected by the studio owner.
+    </p>
+
+    {booking.rejection_reason && (
+      <div className="booking-rejection-reason">
+        <strong>Reason from the studio owner:</strong>
+        <p>{booking.rejection_reason}</p>
+      </div>
+    )}
+  </>
+)}
       </div>
     );
   }

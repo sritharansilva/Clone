@@ -55,7 +55,7 @@ a {
 }
 
 .brand {
-  font-family: 'DM Serif Display', serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 27px;
   letter-spacing: -1px;
   display: inline-flex;
@@ -349,7 +349,7 @@ a {
 }
 
 .section-heading h2 {
-  font-family: 'DM Serif Display', serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: 44px;
   font-weight: 400;
   margin: 10px 0 0;
@@ -545,11 +545,11 @@ a {
   justify-content: space-between;
   align-items: center;
   color: #9aa293;
-  font-size: 12px
+  font-size: 20px
 }
 
 .footer-brand {
-  font-size: 20px;
+  font-size: 30px;
   color: #273527
 }
 
@@ -1515,6 +1515,64 @@ a {
   }
 }
 
+/* Booking rejection form */
+.booking-rejection-form {
+  margin-top: 20px;
+  padding: 20px;
+  background: #fff8f7;
+  border: 1px solid #ead8d5;
+  border-radius: 12px;
+}
+
+.booking-rejection-form label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #38332f;
+}
+
+.booking-rejection-form textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d8c8c4;
+  border-radius: 8px;
+  resize: vertical;
+  min-height: 100px;
+  background: #ffffff;
+  color: #333333;
+  outline: none;
+}
+
+.booking-rejection-form textarea:focus {
+  border-color: #b66d62;
+  box-shadow: 0 0 0 3px rgba(182, 109, 98, 0.12);
+}
+
+.booking-rejection-form .booking-card-actions {
+  margin-top: 14px;
+}
+
+/* Customer rejection reason */
+.booking-rejection-reason {
+  margin-top: 12px;
+  padding: 14px 16px;
+  background: #fff4f2;
+  border-left: 4px solid #c56b60;
+  border-radius: 6px;
+  color: #55413d;
+}
+
+.booking-rejection-reason strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.booking-rejection-reason p {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
 
 /* Booking availability calendar */
 
@@ -1833,9 +1891,7 @@ a {
 }
 
 
-/* =================================
-   HERO BANNER - DECORATIVE QR CARD
-================================= */
+/* qr card */
 
 .hero-inner {
   display: flex;

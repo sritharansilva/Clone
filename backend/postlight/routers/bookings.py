@@ -344,6 +344,7 @@ def lookup_booking(lookup: BookingLookup):
                 """
                 SELECT
                     b.status,
+                    b.rejection_reason,
                     b.booking_type,
                     b.start_at,
                     b.end_at,
@@ -370,6 +371,7 @@ def lookup_booking(lookup: BookingLookup):
 
 class BookingDecision(BaseModel):
     decision: Literal["approved", "rejected"]
+    rejection_reason: str | None = Field(default=None, max_length=1000)
 
 class HourlyPriceUpdate(BaseModel):
     price_per_hour: Decimal = Field(
@@ -603,15 +605,34 @@ def decide_booking(
                     "This booking has already been processed.",
                 )
 
+            if decision.decision == "rejected" and not (
+                decision.rejection_reason or ""
+            ).strip():
+                raise HTTPException(
+                    422,
+                    "Please provide a reason for rejecting this booking.",
+                )
+
+            rejection_reason = (
+                decision.rejection_reason.strip()
+                if decision.decision == "rejected"
+                else None
+            )
+
             cur.execute(
                 """
                 UPDATE public.bookings
                 SET status = %s,
+                    rejection_reason = %s,
                     updated_at = NOW()
                 WHERE id = %s
                 RETURNING *
                 """,
-                (decision.decision, booking_id),
+                (
+                    decision.decision,
+                    rejection_reason,
+                    booking_id,
+                ),
             )
 
             updated_booking = cur.fetchone()
@@ -627,6 +648,7 @@ def decide_booking(
             end_at=booking["end_at"],
             total_price=booking["total_price"],
             decision=decision.decision,
+            rejection_reason=rejection_reason,
         )
     except Exception as exc:
         print("BOOKING DECISION EMAIL ERROR:", repr(exc))

@@ -66,6 +66,7 @@ def send_booking_decision_email(
     end_at,
     total_price,
     decision: str,
+    rejection_reason: str | None = None,
 ):
     if not settings.resend_api_key:
         raise RuntimeError("RESEND_API_KEY is not configured.")
@@ -86,10 +87,28 @@ def send_booking_decision_email(
         subject = "Your Postlight booking has been approved!"
         heading = "Your booking is approved!"
         message = "Good news! Your booking has been approved by the studio owner."
+        rejection_reason_html = ""
+
     else:
         subject = "Update on your Postlight booking"
         heading = "Booking request not approved"
-        message = "Unfortunately, your booking request was not approved by the studio owner."
+        message = (
+            "Unfortunately, your booking request was not approved "
+            "by the studio owner."
+        )
+
+        safe_reason = html.escape(
+            rejection_reason or "No reason was provided."
+        )
+
+        rejection_reason_html = f"""
+            <div style="background: #fff4f4; padding: 16px;
+                        border-left: 4px solid #d9534f;
+                        margin: 16px 0;">
+                <p><strong>Reason for rejection:</strong></p>
+                <p>{safe_reason}</p>
+            </div>
+        """
 
     params = {
         "from": settings.resend_from_email,
@@ -100,13 +119,18 @@ def send_booking_decision_email(
             <h2>{heading}</h2>
             <p>Hi {customer_name},</p>
             <p>{message}</p>
+
+            {rejection_reason_html}
+
             <hr>
+
             <p><strong>Studio:</strong> {studio_title}</p>
             <p><strong>Booking type:</strong> {booking_type_text}</p>
             <p><strong>Start:</strong> {start_at}</p>
             <p><strong>End:</strong> {end_at}</p>
             <p><strong>Total price:</strong> RM {total_price}</p>
             <p><strong>Booking status:</strong> {decision.capitalize()}</p>
+
             <p>Thank you,<br>Postlight</p>
         </div>
         """,

@@ -9,7 +9,9 @@ export default function BookingPage({ mode, onBack }) {
   const [error, setError] = React.useState('');
   const [message, setMessage] = React.useState('');
   const [processing, setProcessing] = React.useState('');
-
+  const [rejectingBooking, setRejectingBooking] = React.useState('');
+  const [rejectionReason, setRejectionReason] = React.useState('');
+  
   async function loadBookings() {
     try {
       setLoading(true);
@@ -29,32 +31,37 @@ export default function BookingPage({ mode, onBack }) {
     loadBookings();
   }, [mode]);
 
-  async function decideBooking(id, decision) {
-    try {
-      setProcessing(id);
-      setError('');
-      setMessage('');
+  async function decideBooking(id, decision, reason = '') {
+  try {
+    setProcessing(id);
+    setError('');
+    setMessage('');
 
-      await api(`/bookings/${id}/decision`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ decision })
-      });
+    await api(`/bookings/${id}/decision`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        decision,
+        rejection_reason: decision === 'rejected' ? reason.trim() : null
+      })
+    });
 
-      setMessage(
-        decision === 'approved'
-          ? 'Booking approved successfully.'
-          : 'Booking rejected successfully.'
-      );
+    setMessage(
+      decision === 'approved'
+        ? 'Booking approved successfully.'
+        : 'Booking rejected successfully.'
+    );
 
-      await loadBookings();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setProcessing('');
-    }
+    setRejectingBooking('');
+    setRejectionReason('');
+
+    await loadBookings();
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setProcessing('');
   }
-
+}
   async function deleteBooking(id) {
   const confirmed = window.confirm(
     'Are you sure you want to permanently delete this booking?'
@@ -196,28 +203,99 @@ export default function BookingPage({ mode, onBack }) {
                   </button>
 
                   <button
-                    className="booking-reject"
-                    disabled={processing === booking.id}
-                    onClick={() => decideBooking(booking.id, 'rejected')}
-                  >
-                    <XCircle size={16} />
-                    Reject
-                  </button>
+  className="booking-reject"
+  disabled={processing === booking.id}
+  onClick={() => {
+    setRejectingBooking(booking.id);
+    setRejectionReason('');
+  }}
+>
+  <XCircle size={16} />
+  Reject
+</button>
                 </div>
               )}
 
+{mode === 'owner' &&
+  booking.status === 'pending' &&
+  rejectingBooking === booking.id && (
+    <div className="booking-rejection-form">
+      <label>Reason for rejection</label>
+
+      <textarea
+        value={rejectionReason}
+        onChange={(e) => setRejectionReason(e.target.value)}
+        placeholder="Explain why this booking cannot be approved..."
+        rows={4}
+        maxLength={1000}
+      />
+
+      <div className="booking-card-actions">
+        <button
+          className="booking-reject"
+          disabled={
+            processing === booking.id ||
+            !rejectionReason.trim()
+          }
+          onClick={() =>
+            decideBooking(
+              booking.id,
+              'rejected',
+              rejectionReason
+            )
+          }
+        >
+          Confirm Rejection
+        </button>
+
+        <button
+          className="button button-outline"
+          disabled={processing === booking.id}
+          onClick={() => {
+            setRejectingBooking('');
+            setRejectionReason('');
+          }}
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )}
+
               {mode === 'customer' && (
-                <p className="booking-customer-note">
-                  {booking.status === 'pending' &&
-                    'Your request is waiting for the studio owner to respond.'}
-                  {booking.status === 'approved' &&
-                    'Your booking has been approved. Your studio booking is confirmed.'}
-                  {booking.status === 'rejected' &&
-                    'Sorry, your booking request was rejected by the studio owner.'}
-                  {booking.status === 'cancelled' &&
-                    'This booking has been cancelled.'}
-                </p>
-              )}
+  <div className="booking-customer-note">
+    {booking.status === 'pending' && (
+      <p>
+        Your request is waiting for the studio owner to respond.
+      </p>
+    )}
+
+    {booking.status === 'approved' && (
+      <p>
+        Your booking has been approved. Your studio booking is confirmed.
+      </p>
+    )}
+
+    {booking.status === 'rejected' && (
+      <>
+        <p>
+          Sorry, your booking request was rejected by the studio owner.
+        </p>
+
+        {booking.rejection_reason && (
+          <div className="booking-rejection-reason">
+            <strong>Reason from the studio owner:</strong>
+            <p>{booking.rejection_reason}</p>
+          </div>
+        )}
+      </>
+    )}
+
+    {booking.status === 'cancelled' && (
+      <p>This booking has been cancelled.</p>
+    )}
+  </div>
+)}
             </article>
           ))}
         </div>
