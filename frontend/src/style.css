@@ -1,8 +1,13 @@
 :root {
-  font-family: 'DM Sans', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   color: #242720;
-  background: #f7fbf9;
+  background: #F2F0EA;
   font-synthesis: none
+}
+
+body {
+  margin: 0;
+  background: #F2F0EA;
 }
 
 * {
@@ -41,7 +46,7 @@ a {
 
 .site-header {
   height: 78px;
-  background: #d4d2ca;
+  background: #E8E5DC;
   border-bottom: 1px solid #eae9e2
 }
 
@@ -226,7 +231,7 @@ a {
 
 .hero h1,
 .detail h1 {
-  font-family: 'DM Sans', sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   font-size: clamp(52px, 6vw, 82px);
   line-height: 1.07;
   letter-spacing: -2px;
@@ -536,7 +541,7 @@ a {
 
 .footer {
   border-top: 1px solid #eaece4;
-  background: #fff
+  background:#E8E5DC;
 }
 
 .footer-inner {
@@ -2032,4 +2037,14 @@ a {
 
 .footer-policy-link:hover {
   color: #5e3d27;
+}
+
+/* Minimal font for Hero heading */
+.hero-copy h1 {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Hero tagline font */
+.hero-copy .eyebrow {
+  font-family: Georgia, 'Times New Roman', serif;
 }
