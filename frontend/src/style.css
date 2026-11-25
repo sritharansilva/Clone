@@ -1977,3 +1977,59 @@ a {
     align-self: center;
   }
 }
+
+
+/* Cancellation policy notice in booking form */
+.booking-policy-notice {
+  margin-top: 18px;
+  margin-bottom: 18px;
+  padding: 16px;
+  background: #f7f3ef;
+  border: 1px solid #e5d9ce;
+  border-radius: 10px;
+}
+
+.booking-policy-notice strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #242720;
+}
+
+.booking-policy-notice p {
+  margin: 0 0 10px;
+  color: #625d57;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.booking-policy-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #8b5e3c;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.booking-policy-link:hover {
+  color: #5e3d27;
+}
+
+/* Footer cancellation policy link */
+.footer-policy-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: #8b5e3c;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.footer-policy-link:hover {
+  color: #5e3d27;
+}

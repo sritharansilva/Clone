@@ -14,6 +14,7 @@ import BookingModal from './components/BookingModal';
 import BookingPage from './components/BookingPage';
 import PricingPage from './components/PricingPage';
 import BookingLookup from './BookingLookup';
+import CancellationPolicy from './components/CancellationPolicy';
 export default function App() {
   const session = useSession();
   const ADMIN_ID = 'c64f584e-9c61-43e4-91f3-518bd1f09b1d';
@@ -28,6 +29,7 @@ export default function App() {
   const [authOpen, setAuthOpen] = React.useState(false);
   const [bookingPost, setBookingPost] = React.useState(null);
   const [bookingView, setBookingView] = React.useState(null);
+  const [policyOpen, setPolicyOpen] = React.useState(false);
   async function refresh() {
     try {
       setPosts(await api('/posts'));
@@ -82,8 +84,11 @@ export default function App() {
 onManagePricing={() => setBookingView('pricing')}
 isAdmin={isAdmin}
 />
-
-{bookingView === 'lookup' ? (
+{policyOpen ? (
+  <CancellationPolicy
+    onBack={() => setPolicyOpen(false)}
+  />
+) : bookingView === 'lookup' ? (
   <BookingLookup
     onBack={() => setBookingView(null)}
   />
@@ -110,7 +115,11 @@ isAdmin={isAdmin}
       <Hero onCreate={openCreate} onChat={() => setChatOpen(true)} />
       <PostList posts={visible} query={query} onQueryChange={setQuery} loading={loading} error={error} onCreate={openCreate} onSelect={setSelected} />
     </>}
-    <Footer />
+    <Footer onPolicyClick={() => {
+      setPolicyOpen(true);
+      setBookingView(null);
+      setSelected(null);
+    }} />
     <button className="chat-fab" title="Ask AI" onClick={() => setChatOpen(true)}>
       <Sparkles size={22} />
     </button>
@@ -120,10 +129,13 @@ isAdmin={isAdmin}
       await refresh();
     }} />}
     {authOpen && <Auth onClose={() => setAuthOpen(false)} />}
-      {bookingPost && (
+      {bookingPost && !policyOpen && (
   <BookingModal
     post={bookingPost}
     onClose={() => setBookingPost(null)}
+    onPolicyClick={() => {
+      setPolicyOpen(true);
+    }}
   />
 )}
     {chatOpen && <Chat session={session} onClose={() => setChatOpen(false)} onSignIn={() => {

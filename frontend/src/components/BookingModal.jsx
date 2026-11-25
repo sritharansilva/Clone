@@ -94,7 +94,7 @@ function getAvailableStartTimes(dateString, duration, bookings) {
   return available;
 }
 
-export default function BookingModal({ post, onClose }) {
+export default function BookingModal({ post, onClose, onPolicyClick }) {
   const today = getMalaysiaToday();
   const lastDate = addDays(today, 89);
 
@@ -639,6 +639,22 @@ export default function BookingModal({ post, onClose }) {
                 before it is confirmed. Pending and approved bookings are
                 treated as unavailable.
               </p>
+              
+<div className="booking-policy-notice">
+  <strong>Cancellation & Booking Policy</strong>
+  <p>
+    Please note that online payments and refunds are not currently
+    available. To cancel or reschedule a booking, please contact
+    the studio owner directly.
+  </p>
+  <button
+    type="button"
+    className="booking-policy-link"
+    onClick={onPolicyClick}
+  >
+    Read Cancellation & Booking Policy
+  </button>
+</div>
 
               {error && (
                 <p className="booking-error">{error}</p>
