@@ -4,7 +4,7 @@ import { ArrowRight, ArrowUpDown, BookOpen, LoaderCircle, Plus, Search, X } from
 // >>> SAME WORDING in Editor.jsx.
 
 const LOCATIONS = ['Selangor'];
-const STUDIO_TYPES = ['Videography / Photography studio', 'Podcast / recording', 'Dance / fitness', 'Event / workshop', 'Other'];
+const STUDIO_TYPES = ['Videography / Photography studio', 'Podcast / recording', 'Dance / fitness', 'Event / workshop'];
 const PRICE_RANGES = [
   { value: '0-50', label: 'Under RM50 / hr' },
   { value: '50-100', label: 'RM50 – RM100 / hr' },
