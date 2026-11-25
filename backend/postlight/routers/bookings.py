@@ -302,29 +302,35 @@ def get_booking_availability(
                     end_at,
                     status
                 FROM public.bookings
-                WHERE post_id = %s
-                  AND status IN ('pending', 'approved')
+                WHERE status IN ('pending', 'approved')
+                  AND (
+                      post_id = %s
+                      OR (
+                          %s IN (
+                              '0fc0e01f-2998-4800-aa2c-5335916386f9',
+                              'c0638c3c-cb80-43b0-bf13-4fa88203f518',
+                              '4de46073-78b9-4719-8783-e5916f125a59'
+                          )
+                          AND post_id IN (
+                              '0fc0e01f-2998-4800-aa2c-5335916386f9',
+                              'c0638c3c-cb80-43b0-bf13-4fa88203f518',
+                              '4de46073-78b9-4719-8783-e5916f125a59'
+                          )
+                      )
+                  )
                   AND start_at < %s
                   AND end_at > %s
                 ORDER BY start_at
                 """,
                 (
                     post_id,
+                    post_id,
                     range_end,
                     range_start,
                 ),
             )
 
-            bookings = cur.fetchall()
-
-            return {
-                "post_id": str(post_id),
-                "start_date": start_date,
-                "end_date": end_date,
-                "bookings": bookings,
-            }
-
-
+            return cur.fetchall()
 
 class BookingLookup(BaseModel):
     lookup_reference: str = Field(min_length=20, max_length=100)

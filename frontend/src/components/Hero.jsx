@@ -8,7 +8,7 @@ export default function Hero({ onCreate, onChat }) {
 
         <div className="hero-copy">
           <span className="hero-eyebrow">
-            SPACES FOR CREATIVITY
+            
           </span>
 
           <h1>
