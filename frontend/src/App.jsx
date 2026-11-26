@@ -1,5 +1,4 @@
 import React from 'react';
-import { Sparkles } from 'lucide-react';
 import { api } from './lib/api';
 import { useSession } from './hooks/useSession';
 import Header from './components/Header';
@@ -9,7 +8,6 @@ import PostList from './components/PostList';
 import PostDetail from './components/PostDetail';
 import Editor from './components/Editor';
 import Auth from './components/Auth';
-import Chat from './components/Chat';
 import BookingModal from './components/BookingModal';
 import BookingPage from './components/BookingPage';
 import PricingPage from './components/PricingPage';
@@ -25,11 +23,49 @@ export default function App() {
   const [query, setQuery] = React.useState('');
   const [editor, setEditor] = React.useState(null);
   const [selected, setSelected] = React.useState(null);
-  const [chatOpen, setChatOpen] = React.useState(false);
   const [authOpen, setAuthOpen] = React.useState(false);
   const [bookingPost, setBookingPost] = React.useState(null);
+  const [bookingInitialDate, setBookingInitialDate] = React.useState('');
   const [bookingView, setBookingView] = React.useState(null);
   const [policyOpen, setPolicyOpen] = React.useState(false);
+    function applyPage(page, data = null) {
+    setPolicyOpen(page === 'policy');
+    setBookingView(
+      ['lookup', 'pricing', 'owner', 'customer'].includes(page)
+        ? page
+        : null
+    );
+    setSelected(page === 'detail' ? data : null);
+  }
+
+  function navigateTo(page, data = null) {
+    window.history.pushState(
+      { page, data },
+      '',
+      window.location.pathname + window.location.search
+    );
+
+    applyPage(page, data);
+  }
+
+  React.useEffect(() => {
+    window.history.replaceState(
+      { page: 'home' },
+      '',
+      window.location.pathname + window.location.search
+    );
+
+    function handlePopState(event) {
+      const page = event.state?.page || 'home';
+      applyPage(page, event.state?.data || null);
+    }
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
   async function refresh() {
     try {
       setPosts(await api('/posts'));
@@ -46,8 +82,9 @@ export default function App() {
   const visible = posts.filter(p => `${p.title} ${p.body}`.toLowerCase().includes(query.toLowerCase()));
   const mine = post => session?.user?.id === post.author_id;
   const openCreate = () => session ? setEditor({}) : setAuthOpen(true);
-  const openBooking = post => {
+  const openBooking = (post, date = '') => {
   setBookingPost(post);
+  setBookingInitialDate(date);
 };
   async function remove(post) {
     if (!window.confirm(`Delete “${post.title}”? This cannot be undone.`)) return;
@@ -62,67 +99,58 @@ export default function App() {
     }
   }
   return <div className="app">
-    <Header
+   <Header
   session={session}
-  onHome={() => {
-    setSelected(null);
-    setBookingView(null);
-  }}
-  onExplore={() => {
-    setSelected(null);
-    setBookingView(null);
-    setChatOpen(false);
-  }}
-  onChat={() => setChatOpen(true)}
+  onHome={() => navigateTo('home')}
+  onExplore={() => navigateTo('home')}
   onSignIn={() => setAuthOpen(true)}
-  onManageBookings={() => setBookingView('owner')}
-  onMyBookings={() => setBookingView('customer')}
-  onCheckBookingStatus={() => {
-  setBookingView('lookup');
-  setSelected(null);
-}}
-onManagePricing={() => setBookingView('pricing')}
-isAdmin={isAdmin}
+  onManageBookings={() => navigateTo('owner')}
+  onMyBookings={() => navigateTo('customer')}
+  onCheckBookingStatus={() => navigateTo('lookup')}
+  onManagePricing={() => navigateTo('pricing')}
+  isAdmin={isAdmin}
 />
 {policyOpen ? (
   <CancellationPolicy
-    onBack={() => setPolicyOpen(false)}
-  />
+  onBack={() => window.history.back()}
+/>
 ) : bookingView === 'lookup' ? (
   <BookingLookup
-    onBack={() => setBookingView(null)}
-  />
+  onBack={() => window.history.back()}
+/>
 ) : bookingView === 'pricing' ? (
   <PricingPage
     session={session}
-    onBack={() => setBookingView(null)}
+    onBack={() => window.history.back()}
   />
 ) : bookingView ? (
   <BookingPage
     mode={bookingView}
-    onBack={() => setBookingView(null)}
+    onBack={() => window.history.back()}
   />
 ) : selected ? <PostDetail
 
   post={selected}
   isOwner={mine(selected)}
-  onBack={() => setSelected(null)}
-  onChat={() => setChatOpen(true)}
-  onEdit={() => setEditor(selected)}
+  onBack={() => window.history.back()}
+    onEdit={() => setEditor(selected)}
   onDelete={() => remove(selected)}
   onBook={() => openBooking(selected)}
 /> : <>
-      <Hero onCreate={openCreate} onChat={() => setChatOpen(true)} />
-      <PostList posts={visible} query={query} onQueryChange={setQuery} loading={loading} error={error} onCreate={openCreate} onSelect={setSelected} />
+      <Hero onCreate={openCreate}  />
+      <PostList
+  posts={visible}
+  query={query}
+  onQueryChange={setQuery}
+  loading={loading}
+  error={error}
+  onCreate={openCreate}
+  onSelect={post => navigateTo('detail', post)}
+  onBook={openBooking}
+/>
     </>}
-    <Footer onPolicyClick={() => {
-      setPolicyOpen(true);
-      setBookingView(null);
-      setSelected(null);
-    }} />
-    <button className="chat-fab" title="Ask AI" onClick={() => setChatOpen(true)}>
-      <Sparkles size={22} />
-    </button>
+    <Footer onPolicyClick={() => navigateTo('policy')} />
+
     {editor && <Editor post={editor.id ? editor : null} onClose={() => setEditor(null)} onSaved={async () => {
       setEditor(null);
       setSelected(null);
@@ -133,22 +161,10 @@ isAdmin={isAdmin}
   <BookingModal
     post={bookingPost}
     onClose={() => setBookingPost(null)}
-    onPolicyClick={() => {
-      setPolicyOpen(true);
-    }}
+    initialDate={bookingInitialDate}
+    onPolicyClick={() => navigateTo('policy')}
   />
 )}
-    {chatOpen && <Chat session={session} onClose={() => setChatOpen(false)} onSignIn={() => {
-      setChatOpen(false);
-      setAuthOpen(true);
-    }} onOpenPost={async id => {
-      try {
-        const post = posts.find(p => p.id === id) || (await api(`/posts/${id}`));
-        setSelected(post);
-        setChatOpen(false);
-      } catch (err) {
-        setError(err.message);
-      }
-    }} />}
+
   </div>;
 }

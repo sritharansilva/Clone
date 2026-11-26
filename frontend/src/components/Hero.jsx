@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-export default function Hero({ onCreate, onChat }) {
+export default function Hero({ onCreate }) {
   return (
     <section className="hero">
       <div className="wrap hero-inner">
@@ -18,8 +18,7 @@ export default function Hero({ onCreate, onChat }) {
           </h1>
 
           <p className="hero-description">
-            Prime location studios with thoughtfully prepared amenities
-            for your next creative project.
+            Ideally located studios with thoughtfully curated amenities for your next creative project.
           </p>
 
           <p className="hero-description">

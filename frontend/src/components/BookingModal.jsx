@@ -94,12 +94,16 @@ function getAvailableStartTimes(dateString, duration, bookings) {
   return available;
 }
 
-export default function BookingModal({ post, onClose, onPolicyClick }) {
+export default function BookingModal({ post, initialDate, onClose, onPolicyClick }) {
   const today = getMalaysiaToday();
   const lastDate = addDays(today, 89);
+  const selectedInitialDate =
+    initialDate && initialDate >= today && initialDate <= lastDate
+      ? initialDate
+      : today;
 
   const [bookingType, setBookingType] = React.useState('hourly');
-  const [bookingDate, setBookingDate] = React.useState(today);
+  const [bookingDate, setBookingDate] = React.useState(selectedInitialDate);
   const [startTime, setStartTime] = React.useState('09:00');
   const [duration, setDuration] = React.useState('1');
   const [customerName, setCustomerName] = React.useState('');
@@ -115,48 +119,37 @@ export default function BookingModal({ post, onClose, onPolicyClick }) {
   const [copiedReference, setCopiedReference] = React.useState(false);
 
   const [displayMonth, setDisplayMonth] = React.useState(
-    today.slice(0, 7)
+  selectedInitialDate.slice(0, 7)
   );
 
-  const hourlyRate = Number(post.price_per_hour || 0);
+    const hourlyRate = Number(post.price_per_hour || 0);
+
   const estimatedPrice =
     bookingType === 'hourly'
       ? hourlyRate * Number(duration)
       : 500;
 
-  React.useEffect(() => {
-    let cancelled = false;
+  async function refreshAvailability() {
+    try {
+      setAvailabilityLoading(true);
+      setAvailabilityError('');
 
-    async function loadAvailability() {
-      try {
-        setAvailabilityLoading(true);
-        setAvailabilityError('');
+      const result = await api(
+        `/bookings/availability/${post.id}?start_date=${today}&end_date=${lastDate}`
+      );
 
-        const result = await api(
-          `/bookings/availability/${post.id}?start_date=${today}&end_date=${lastDate}`
-        );
-
-        if (!cancelled) {
-          setBookings(result.bookings || []);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setAvailabilityError(
-            err.message || 'Could not load booking availability.'
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setAvailabilityLoading(false);
-        }
-      }
+      setBookings(Array.isArray(result) ? result : result.bookings || []);
+    } catch (err) {
+      setAvailabilityError(
+        err.message || 'Could not load booking availability.'
+      );
+    } finally {
+      setAvailabilityLoading(false);
     }
+  }
 
-    loadAvailability();
-
-    return () => {
-      cancelled = true;
-    };
+  React.useEffect(() => {
+    refreshAvailability();
   }, [post.id, today, lastDate]);
 
   const availableStartTimes = React.useMemo(() => {
@@ -376,7 +369,7 @@ export default function BookingModal({ post, onClose, onPolicyClick }) {
       </p>
 
       <strong className="booking-reference-code">
-        {success.lookup_reference}
+        {success.booking_reference}
       </strong>
 
       <button
@@ -385,8 +378,8 @@ export default function BookingModal({ post, onClose, onPolicyClick }) {
         onClick={async () => {
           try {
             await navigator.clipboard.writeText(
-              success.lookup_reference
-            );
+            success.booking_reference
+        );
             setCopiedReference(true);
           } catch {
             setError('Could not copy the reference. Please copy it manually.');
@@ -555,6 +548,21 @@ export default function BookingModal({ post, onClose, onPolicyClick }) {
                 </div>
               </div>
 
+                              <button
+                type="button"
+                className="button button-dark"
+                onClick={refreshAvailability}
+                disabled={availabilityLoading}
+                style={{
+                  marginTop: '12px',
+                  marginBottom: '12px',
+                }}
+              >
+                {availabilityLoading
+                  ? 'Refreshing availability...'
+                  : 'Refresh Availability'}
+              </button>
+
               {availabilityLoading && (
                 <p className="booking-calendar-message">
                   Loading calendar availability...
@@ -639,7 +647,7 @@ export default function BookingModal({ post, onClose, onPolicyClick }) {
                 before it is confirmed. Pending and approved bookings are
                 treated as unavailable.
               </p>
-              
+
 <div className="booking-policy-notice">
   <strong>Cancellation & Booking Policy</strong>
   <p>

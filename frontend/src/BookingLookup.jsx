@@ -11,9 +11,12 @@ import {
 
 export default function BookingLookup({ onBack }) {
   const [reference, setReference] = React.useState('');
+  const [customerPhone, setCustomerPhone] = React.useState('');
   const [booking, setBooking] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [paymentLoading, setPaymentLoading] = React.useState(false);
+  const [paymentError, setPaymentError] = React.useState('');
 
   async function checkBooking(event) {
     event.preventDefault();
@@ -34,8 +37,9 @@ export default function BookingLookup({ onBack }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          lookup_reference: reference.trim(),
-        }),
+  booking_reference: reference.trim(),
+  customer_phone: customerPhone.trim(),
+}),
       });
 
       setBooking(result);
@@ -47,7 +51,35 @@ export default function BookingLookup({ onBack }) {
       setLoading(false);
     }
   }
+  async function makeDemoPayment(outcome) {
+    setPaymentLoading(true);
+    setPaymentError('');
 
+    try {
+      const result = await api('/bookings/demo-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+  booking_reference: reference.trim(),
+  customer_phone: customerPhone.trim(),
+  outcome,
+}),
+      });
+
+      setBooking(current => ({
+        ...current,
+        ...result,
+      }));
+    } catch (err) {
+      setPaymentError(
+        err.message || 'Demo payment could not be completed.'
+      );
+    } finally {
+      setPaymentLoading(false);
+    }
+  }
   function formatDateTime(value) {
     return new Intl.DateTimeFormat('en-MY', {
       timeZone: 'Asia/Kuala_Lumpur',
@@ -125,10 +157,63 @@ export default function BookingLookup({ onBack }) {
         )}
 
         {booking.status === 'approved' && (
-          <p>
-            Your booking has been approved. We look forward to
-            welcoming you!
-          </p>
+          <>
+            <p>
+              Your booking has been approved. We look forward to
+              welcoming you!
+            </p>
+
+            <div className="booking-payment-section">
+              <h3>Payment</h3>
+
+              {booking.payment_status === 'paid' ? (
+                <>
+                  <p className="status-approved">
+                    Payment completed
+                  </p>
+
+                  <p>
+                    Payment reference: {booking.payment_reference}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p>
+                    Payment status: {booking.payment_status || 'unpaid'}
+                  </p>
+
+                  <p>
+                    This is a demo checkout. No real money or card
+                    details are involved.
+                  </p>
+
+                  {paymentError && (
+                    <p className="booking-error">{paymentError}</p>
+                  )}
+
+                  <button
+                    type="button"
+                    className="button button-dark"
+                    disabled={paymentLoading}
+                    onClick={() => makeDemoPayment('success')}
+                  >
+                    {paymentLoading
+                      ? 'Processing...'
+                      : 'Simulate Successful Payment'}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="button"
+                    disabled={paymentLoading}
+                    onClick={() => makeDemoPayment('failed')}
+                  >
+                    Simulate Failed Payment
+                  </button>
+                </>
+              )}
+            </div>
+          </>
         )}
 
         {booking.status === 'rejected' && (
@@ -167,9 +252,9 @@ export default function BookingLookup({ onBack }) {
           <h1>Check your booking status</h1>
 
           <p>
-            Enter the private booking reference you received
-            after submitting your booking request.
-          </p>
+  Enter the booking reference and WhatsApp number you used
+  when submitting your booking request.
+</p>
 
           <form onSubmit={checkBooking}>
             <label htmlFor="booking-reference">
@@ -184,6 +269,18 @@ export default function BookingLookup({ onBack }) {
               placeholder="Paste your booking reference"
               required
             />
+            <label htmlFor="booking-phone">
+  WhatsApp number
+</label>
+
+<input
+  id="booking-phone"
+  type="tel"
+  value={customerPhone}
+  onChange={event => setCustomerPhone(event.target.value)}
+  placeholder="Enter the WhatsApp number used for booking"
+  required
+/>
 
             {error && (
               <p className="booking-error">{error}</p>

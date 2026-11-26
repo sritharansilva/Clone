@@ -57,9 +57,7 @@ export default function PostDetail({
         </div>
 
         <div className="detail-footer">
-          <button className="text-action" onClick={onChat}>
-            <Sparkles size={17} /> Ask AI about this post
-          </button>
+          
 
           {isOwner && (
             <div className="owner-actions">

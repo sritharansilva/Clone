@@ -103,7 +103,7 @@ def create_booking(
     lookup_token_hash = hashlib.sha256(
         lookup_reference.encode("utf-8")
     ).hexdigest()
-    
+
     now = datetime.now(MALAYSIA_TZ)
 
     if start_at <= now:
@@ -132,11 +132,11 @@ def create_booking(
                     raise HTTPException(404, "Studio not found.")
 
                 # Only Podcast Hangout supports full-day booking.
-                
+
 
                 # DEMO ONLY: Temporarily allow owners to book their own studios.
                 # Restore the ownership restriction after the demonstration.
-                
+
 
                 if booking.booking_type == "hourly":
 
@@ -175,8 +175,8 @@ def create_booking(
                     total_price = daily_rate
                     hourly_rate = None
 
-                
-                
+
+
                 # Save the guest booking as pending for owner approval.
                 cur.execute(
                     """
@@ -302,22 +302,22 @@ def get_booking_availability(
                     end_at,
                     status
                 FROM public.bookings
-                WHERE status IN ('pending', 'approved')
-                  AND (
-                      post_id = %s
-                      OR (
-                          %s IN (
-                              '0fc0e01f-2998-4800-aa2c-5335916386f9',
-                              'c0638c3c-cb80-43b0-bf13-4fa88203f518',
-                              '4de46073-78b9-4719-8783-e5916f125a59'
-                          )
-                          AND post_id IN (
-                              '0fc0e01f-2998-4800-aa2c-5335916386f9',
-                              'c0638c3c-cb80-43b0-bf13-4fa88203f518',
-                              '4de46073-78b9-4719-8783-e5916f125a59'
-                          )
-                      )
-                  )
+                WHERE (
+                    post_id = %s
+                    OR (
+                        %s = ANY(ARRAY[
+                            '0fc0e01f-2998-4800-aa2c-5335916386f9',
+                            'c0638c3c-cb80-43b0-bf13-4fa88203f518',
+                            '4de46073-78b9-4719-8783-e5916f125a59'
+                        ]::uuid[])
+                        AND post_id = ANY(ARRAY[
+                            '0fc0e01f-2998-4800-aa2c-5335916386f9',
+                            'c0638c3c-cb80-43b0-bf13-4fa88203f518',
+                            '4de46073-78b9-4719-8783-e5916f125a59'
+                        ]::uuid[])
+                    )
+                )
+                  AND status IN ('pending', 'approved')
                   AND start_at < %s
                   AND end_at > %s
                 ORDER BY start_at
@@ -332,16 +332,20 @@ def get_booking_availability(
 
             return cur.fetchall()
 
+
 class BookingLookup(BaseModel):
-    lookup_reference: str = Field(min_length=20, max_length=100)
+    booking_reference: str = Field(min_length=10, max_length=30)
+    customer_phone: str = Field(min_length=8, max_length=30)
+
+
+class DemoPaymentRequest(BaseModel):
+    booking_reference: str = Field(min_length=10, max_length=30)
+    customer_phone: str = Field(min_length=8, max_length=30)
+    outcome: Literal["success", "failed"]
 
 
 @router.post("/lookup")
 def lookup_booking(lookup: BookingLookup):
-
-    lookup_token_hash = hashlib.sha256(
-        lookup.lookup_reference.encode("utf-8")
-    ).hexdigest()
 
     with connection() as conn:
         with conn.cursor(row_factory=dict_row) as cur:
@@ -349,19 +353,27 @@ def lookup_booking(lookup: BookingLookup):
             cur.execute(
                 """
                 SELECT
+                    b.booking_reference,
                     b.status,
                     b.rejection_reason,
                     b.booking_type,
                     b.start_at,
                     b.end_at,
                     b.total_price,
+                    b.payment_status,
+                    b.payment_reference,
+                    b.paid_at,
                     p.title AS studio_title,
                     p.location AS studio_location
                 FROM public.bookings b
                 JOIN public.posts p ON p.id = b.post_id
-                WHERE b.lookup_token_hash = %s
+                WHERE b.booking_reference = %s
+                  AND b.customer_phone = %s
                 """,
-                (lookup_token_hash,),
+                (
+                    lookup.booking_reference.strip().upper(),
+                    lookup.customer_phone.strip(),
+                ),
             )
 
             booking = cur.fetchone()
@@ -369,10 +381,107 @@ def lookup_booking(lookup: BookingLookup):
             if booking is None:
                 raise HTTPException(
                     404,
-                    "Booking not found. Please check your reference."
+                    "Booking not found. Please check your booking reference and WhatsApp number."
                 )
 
             return booking
+
+
+@router.post("/demo-payment")
+def make_demo_payment(payment: DemoPaymentRequest):
+
+    with connection() as conn:
+        with conn.cursor(row_factory=dict_row) as cur:
+
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    status,
+                    payment_status,
+                    total_price
+                FROM public.bookings
+                WHERE booking_reference = %s
+                  AND customer_phone = %s
+                FOR UPDATE
+                """,
+                (
+                    payment.booking_reference.strip().upper(),
+                    payment.customer_phone.strip(),
+                ),
+            )
+
+            booking = cur.fetchone()
+
+            if booking is None:
+                raise HTTPException(
+                    404,
+                    "Booking not found. Please check your booking reference and WhatsApp number."
+                )
+
+            if booking["status"] != "approved":
+                raise HTTPException(
+                    409,
+                    "Payment is only available after the booking is approved."
+                )
+
+            if booking["payment_status"] == "paid":
+                raise HTTPException(
+                    409,
+                    "This booking has already been paid."
+                )
+
+            if payment.outcome == "failed":
+
+                cur.execute(
+                    """
+                    UPDATE public.bookings
+                    SET payment_status = 'failed',
+                        updated_at = NOW()
+                    WHERE id = %s
+                    RETURNING payment_status
+                    """,
+                    (booking["id"],),
+                )
+
+                result = cur.fetchone()
+
+                return {
+                    "message": "Demo payment failed. You can try again.",
+                    "payment_status": result["payment_status"],
+                    "demo_only": True,
+                }
+
+            payment_reference = (
+                "DEMO-" + secrets.token_hex(8).upper()
+            )
+
+            cur.execute(
+                """
+                UPDATE public.bookings
+                SET payment_status = 'paid',
+                    payment_reference = %s,
+                    paid_at = NOW(),
+                    updated_at = NOW()
+                WHERE id = %s
+                RETURNING payment_status, payment_reference, paid_at
+                """,
+                (
+                    payment_reference,
+                    booking["id"],
+                ),
+            )
+
+            result = cur.fetchone()
+
+            return {
+                "message": "Demo payment successful.",
+                "payment_status": result["payment_status"],
+                "payment_reference": result["payment_reference"],
+                "paid_at": result["paid_at"],
+                "amount": booking["total_price"],
+                "demo_only": True,
+            }
 
 
 class BookingDecision(BaseModel):
@@ -392,7 +501,7 @@ class FullDayPriceUpdate(BaseModel):
         ge=0,
         max_digits=10,
         decimal_places=2
-    )    
+    )
 
 
 

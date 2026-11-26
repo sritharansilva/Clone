@@ -1,4 +1,5 @@
 import React from 'react';
+import StudioAvailabilityCalendar from './StudioAvailabilityCalendar';
 import { ArrowRight, ArrowUpDown, BookOpen, LoaderCircle, Plus, Search, X } from 'lucide-react';
 
 // >>> SAME WORDING in Editor.jsx.
@@ -41,7 +42,8 @@ export default function PostList({
   loading,
   error,
   onCreate,
-  onSelect
+  onSelect,
+  onBook
 }) {
   const [newestFirst, setNewestFirst] = React.useState(true);
   const [location, setLocation] = React.useState('');
@@ -83,7 +85,7 @@ export default function PostList({
         <button className="button button-plain" onClick={() => setNewestFirst(v => !v)}>
           <ArrowUpDown size={16} /> {newestFirst ? 'Newest first' : 'Oldest first'}
         </button>
-        <span className="story-count">{sorted.length} {sorted.length === 1 ? 'story' : 'stories'}</span>
+        <span className="story-count">{sorted.length} {sorted.length === 1 ? 'space' : 'spaces'}</span>
       </div>
     </div>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, margin: '0 0 20px' }}>
@@ -116,34 +118,67 @@ export default function PostList({
       {sorted.map((post, index) => {
         const price = post.price_per_hour !== null && post.price_per_hour !== undefined ? `RM${Number(post.price_per_hour)} / hr` : '';
         const meta = [post.studio_type, post.location].filter(Boolean).join(' · ');
-        return <button className="post-card" key={post.id} onClick={() => onSelect(post)}>
-          <div className={`card-cover cover-${index % 4}`}>
-            {post.image_url ? <img src={post.image_url} alt="" /> : <div className="cover-decoration">
-              <span>✦</span>
-              <span>✳</span>
-            </div>}
-          </div>
-          <div className="card-content">
-            <div className="card-date">
-              {new Date(post.created_at).toLocaleDateString(undefined, {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              })}
-            </div>
-            <h3>
-              {post.title}
-            </h3>
-            {meta && <div style={{ margin: '2px 0 8px', fontSize: 13, color: '#6b7280' }}>{meta}</div>}
-            <p>
-              {post.body}
-            </p>
-            <div className="card-bottom">
-              <span>Have a look inside</span>
-              <ArrowRight size={17} />
-            </div>
-          </div>
-        </button>;
+        return (
+  <article
+  className="post-card"
+  key={post.id}
+  onClick={event => {
+    if (
+      event.target.closest('button, select, input, textarea, a')
+    ) {
+      return;
+    }
+
+    onSelect(post);
+  }}
+  style={{ cursor: 'pointer' }}
+>
+    <div className={`card-cover cover-${index % 4}`}>
+      {post.image_url ? (
+        <img src={post.image_url} alt="" />
+      ) : (
+        <div className="cover-decoration">
+          <span>✦</span>
+          <span>✳</span>
+        </div>
+      )}
+    </div>
+
+    <div className="card-content">
+      <div className="card-date">
+        {new Date(post.created_at).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        })}
+      </div>
+
+      <h3>{post.title}</h3>
+
+      {meta && (
+        <div style={{ margin: '2px 0 8px', fontSize: 13, color: '#6b7280' }}>
+          {meta}
+        </div>
+      )}
+
+      <p>{post.body}</p>
+
+      <StudioAvailabilityCalendar
+        post={post}
+        onDateSelect={(selectedPost, date) => onBook(selectedPost, date)}
+      />
+
+      <button
+        type="button"
+        className="card-bottom"
+        onClick={() => onSelect(post)}
+      >
+        <span>Have a look inside</span>
+        <ArrowRight size={17} />
+      </button>
+    </div>
+  </article>
+);
       })}
     </div>}
   </main>;

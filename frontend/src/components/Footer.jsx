@@ -7,11 +7,12 @@ export default function Footer({ onPolicyClick }) {
       <div className="wrap footer-inner">
 
         <span className="brand footer-brand">
-          Studio S<span className="brand-dot"></span>
-        </span>
+  <span className="brand-word">Studio</span><span className="brand-s">S</span>
+</span>
 
-        <span>Ample space for various occassion.</span>
-
+        <p className="footer-tagline">
+  A Versatile Space for Every Occasion.
+</p>
         <button
           className="footer-policy-link"
           onClick={onPolicyClick}

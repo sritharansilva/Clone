@@ -2,9 +2,11 @@
 import React from 'react';
 import { api } from '../lib/api';
 import { CalendarDays, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import BookingCalendar from './BookingCalendar';
 
 export default function BookingPage({ mode, onBack }) {
   const [bookings, setBookings] = React.useState([]);
+  const [searchTerm, setSearchTerm] = React.useState('');
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
   const [message, setMessage] = React.useState('');
@@ -100,6 +102,18 @@ export default function BookingPage({ mode, onBack }) {
   function statusClass(status) {
     return `booking-status status-${status}`;
   }
+  const filteredBookings = bookings.filter(booking => {
+  const search = searchTerm.trim().toLowerCase();
+
+  if (!search) return true;
+
+  return (
+    String(booking.customer_name || '').toLowerCase().includes(search) ||
+    String(booking.customer_phone || '').toLowerCase().includes(search) ||
+    String(booking.booking_reference || '').toLowerCase().includes(search) ||
+    String(booking.id || '').toLowerCase().includes(search)
+  );
+});
 
   return (
     <main className="wrap booking-page">
@@ -121,7 +135,20 @@ export default function BookingPage({ mode, onBack }) {
 
       {error && <p className="booking-error">{error}</p>}
       {message && <p className="booking-message">{message}</p>}
-
+            {mode === 'owner' && (
+  <BookingCalendar bookings={bookings} />
+)}
+{mode === 'owner' && !loading && bookings.length > 0 && (
+  <div className="booking-search">
+    <input
+      type="text"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      placeholder="Search customer name, WhatsApp or booking ID..."
+    />
+  </div>
+)}
+      
       {loading ? (
         <p>Loading bookings...</p>
       ) : bookings.length === 0 ? (
@@ -132,7 +159,12 @@ export default function BookingPage({ mode, onBack }) {
         </div>
       ) : (
         <div className="booking-list">
-          {bookings.map(booking => (
+          {mode === 'owner' && filteredBookings.length === 0 ? (
+  <p className="booking-empty">
+    No matching bookings found.
+  </p>
+) : (
+  (mode === 'owner' ? filteredBookings : bookings).map(booking => (
             <article className="booking-card" key={booking.id}>
               <div className="booking-card-heading">
                 <div>
@@ -168,14 +200,27 @@ export default function BookingPage({ mode, onBack }) {
                 <p>
                   <strong>End:</strong> {formatDate(booking.end_at)}
                 </p>
-                <p>
-                  <strong>Total price:</strong>{' '}
-                  RM {Number(booking.total_price).toFixed(2)}
-                </p>
-                <p>
-                  <strong>Booking ID:</strong>{' '}
-                  <span className="booking-id">{booking.id}</span>
-                </p>
+                <div className="booking-reference-row">
+  <p>
+    <strong>Booking Reference:</strong>{' '}
+<span className="booking-id">{booking.booking_reference}</span>
+  </p>
+
+  <button
+    type="button"
+    className="button button-outline"
+    onClick={async () => {
+      try {
+        await navigator.clipboard.writeText(String(booking.booking_reference));
+        setMessage('Booking ID copied successfully.');
+      } catch {
+        setError('Unable to copy booking ID. Please copy it manually.');
+      }
+    }}
+  >
+    Copy Reference
+  </button>
+</div>
               </div>
 
               {mode === 'owner' && (
@@ -297,7 +342,8 @@ export default function BookingPage({ mode, onBack }) {
   </div>
 )}
             </article>
-          ))}
+          ))
+)}
         </div>
       )}
 

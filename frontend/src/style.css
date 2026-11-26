@@ -60,12 +60,25 @@ a {
 }
 
 .brand {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 27px;
-  letter-spacing: -1px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.8px;
   display: inline-flex;
   align-items: center;
-  gap: 8px
+  gap: 5px;
+  text-decoration: none;
+}
+
+/* Studio S brand colours */
+.site-header .brand-word {
+  color: #A83232;
+}
+
+.site-header .brand-s {
+  color: #E7B94F;
+  font-size: 1.15em;
+  font-weight: 700;
 }
 
 .brand-mark {
@@ -99,7 +112,7 @@ a {
 .remove-image {
   background: none;
   border: 0;
-  color: #444a3d
+  color: #A83232;
 }
 
 .nav-link {
@@ -166,15 +179,13 @@ a {
   color: white
 }
 
-.button-dark:hover {
-  background: #354b36
-}
 
 .button-outline {
   background: transparent;
-  border-color: #d6dacd;
-  color: #263527
+  border-color: #A83232;
+  color: #A83232;
 }
+
 
 .button-outline:hover {
   background: #eff3e8
@@ -549,8 +560,11 @@ a {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 24px;
   color: #9aa293;
-  font-size: 20px
+  font-size: 15px;
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 
 .footer-brand {
@@ -563,21 +577,7 @@ a {
   height: 25px
 }
 
-.chat-fab {
-  position: fixed;
-  right: 32px;
-  bottom: 29px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 0;
-  background: #263527;
-  color: white;
-  box-shadow: 0 7px 19px #26352750;
-  display: grid;
-  place-items: center;
-  z-index: 4
-}
+
 
 .detail {
   padding: 55px 0 120px;
@@ -1117,10 +1117,7 @@ a {
     height: 65px
   }
 
-  .brand {
-    font-size: 23px
-  }
-
+  
   .header-actions {
     gap: 13px
   }
@@ -1189,14 +1186,9 @@ a {
     flex-direction: column
   }
 
-  .footer-inner {
-    min-height: 75px
-  }
+  
 
-  .chat-fab {
-    right: 17px;
-    bottom: 18px
-  }
+  
 
   .modal {
     padding: 23px
@@ -1289,16 +1281,18 @@ a {
 .booking-type-options button {
   flex: 1;
   padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #D9B5B5;
   border-radius: 8px;
   background: white;
+  color: #A83232;
   cursor: pointer;
 }
 
 .booking-type-options button.active {
-  background: #202020;
+  background: #A83232;
   color: white;
-  border-color: #202020;
+  border-color: #A83232;
+  box-shadow: 0 3px 8px rgba(168, 50, 50, 0.18);
 }
 
 .booking-price {
@@ -2047,4 +2041,619 @@ a {
 .hero-copy .hero-description {
   font-family: Arial, Helvetica, sans-serif;
   font-weight: 600;
+}
+
+/* Booking Calendar */
+
+.booking-calendar {
+  width: 100%;
+  padding: 24px;
+  background: #F2F0EA;
+  border-radius: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #242720;
+}
+
+.booking-calendar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.booking-calendar-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.booking-calendar-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.booking-calendar-controls button {
+  flex-shrink: 0;
+  width: auto;
+  white-space: nowrap;
+}
+
+.booking-calendar-controls h3 {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 18px;
+}
+
+.booking-calendar-views {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.booking-calendar-views button {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 65px;
+  white-space: nowrap;
+}
+
+.booking-calendar-controls h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.booking-calendar-controls button,
+.booking-calendar-views button {
+  padding: 9px 16px;
+  border: 1px solid #d4d0c5;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #242720;
+  cursor: pointer;
+}
+
+.booking-calendar-views {
+  display: flex;
+  gap: 8px;
+}
+
+.booking-calendar-views button.active {
+  background: #242720;
+  color: #ffffff;
+}
+
+.booking-calendar-weekdays,
+.booking-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.booking-calendar-weekday {
+  padding: 12px 4px;
+  text-align: center;
+  font-weight: bold;
+  border-bottom: 1px solid #d4d0c5;
+}
+
+.booking-calendar-date {
+  min-height: 90px;
+  padding: 10px;
+  border-right: 1px solid #d4d0c5;
+  border-bottom: 1px solid #d4d0c5;
+  background: #ffffff;
+}
+
+.booking-calendar-date-number {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.booking-calendar-date.other-month {
+  color: #aaa69c;
+  background: #f7f5f0;
+}
+
+/* Calendar Booking Details */
+
+.booking-calendar-day-bookings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.calendar-booking {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 11px;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.calendar-booking strong {
+  font-size: 11px;
+}
+
+.calendar-booking span {
+  font-size: 10px;
+}
+
+.calendar-booking.status-pending {
+  background: #fff0cf;
+  color: #795b19;
+  border-left: 3px solid #d9a441;
+}
+
+.calendar-booking.status-approved {
+  background: #e2efdf;
+  color: #315d35;
+  border-left: 3px solid #659b60;
+}
+
+.calendar-booking.status-rejected,
+.calendar-booking.status-cancelled {
+  background: #f5e0df;
+  color: #8a3935;
+  border-left: 3px solid #c56a64;
+}
+
+.booking-calendar-date {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.booking-calendar-day-bookings {
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+
+/* Booking Calendar View Layout */
+
+.booking-calendar-content {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.booking-calendar-grid {
+  align-items: stretch;
+}
+
+.booking-calendar-date {
+  min-width: 0;
+  min-height: 130px;
+  padding: 8px;
+}
+
+.booking-calendar.view-month .booking-calendar-date {
+  min-height: 130px;
+}
+
+.booking-calendar.view-week .booking-calendar-date {
+  min-height: 320px;
+  padding: 12px;
+}
+
+.booking-calendar.view-day .booking-calendar-date {
+  min-height: 420px;
+  padding: 20px;
+}
+
+.booking-calendar.view-week .booking-calendar-weekday,
+.booking-calendar.view-day .booking-calendar-weekday {
+  padding: 16px 8px;
+  font-size: 14px;
+}
+
+.booking-calendar.view-week .booking-calendar-date-number,
+.booking-calendar.view-day .booking-calendar-date-number {
+  font-size: 18px;
+}
+
+.booking-calendar.view-week .calendar-booking,
+.booking-calendar.view-day .calendar-booking {
+  padding: 10px;
+  font-size: 13px;
+  gap: 5px;
+}
+
+.booking-calendar.view-week .calendar-booking strong,
+.booking-calendar.view-day .calendar-booking strong {
+  font-size: 13px;
+}
+
+.booking-calendar.view-week .calendar-booking span,
+.booking-calendar.view-day .calendar-booking span {
+  font-size: 12px;
+}
+
+.booking-calendar.view-week .booking-calendar-day-bookings,
+.booking-calendar.view-day .booking-calendar-day-bookings {
+  max-height: none;
+  overflow: visible;
+}
+
+@media (max-width: 700px) {
+  .booking-calendar {
+    padding: 12px;
+  }
+
+  .booking-calendar.view-month .booking-calendar-content {
+    min-width: 650px;
+  }
+
+  .booking-calendar.view-week .booking-calendar-content {
+    min-width: 700px;
+  }
+
+  .booking-calendar.view-day .booking-calendar-content {
+    min-width: 300px;
+  }
+}
+
+/* Mini availability calendar on studio cards */
+
+.studio-availability {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #eceee8;
+}
+
+.studio-availability-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
+
+.studio-availability-navigation {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.studio-availability-navigation button {
+  display: grid;
+  place-items: center;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 5px;
+  padding: 4px;
+}
+
+.studio-availability-navigation button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.studio-availability-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  text-align: center;
+}
+
+.studio-availability-weekday {
+  font-size: 10px;
+  color: #777;
+  padding: 4px 0;
+}
+
+.studio-availability-day {
+  min-width: 0;
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 5px;
+  font-size: 11px;
+  color: #263326;
+}
+
+.studio-availability-day.day-available {
+  background: #d9efdc;
+}
+
+.studio-availability-day.day-partial {
+  background: #fff0bd;
+}
+
+.studio-availability-day.day-unavailable {
+  background: #f5d6d6;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.studio-availability-day.day-outside {
+  background: transparent;
+  opacity: 0.25;
+}
+
+.studio-availability-day:not(:disabled):hover {
+  outline: 2px solid #526b48;
+}
+
+.studio-availability-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 10px;
+  color: #666;
+}
+
+.studio-availability-legend span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.studio-availability-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.legend-available {
+  background: #a8d9ae;
+}
+
+.legend-partial {
+  background: #f2d77e;
+}
+
+.legend-unavailable {
+  background: #e5aaaa;
+}
+
+.studio-availability-message {
+  font-size: 12px;
+  color: #777;
+}
+
+/* Keep the studio details button looking like a card link */
+
+.post-card .card-bottom {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+.studio-availability-hint {
+  margin: 10px 0 0;
+  font-size: 11px;
+  color: #777;
+  font-style: italic;
+}
+
+.booking-payment-section {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #d8d5cc;
+  border-radius: 10px;
+  background: #f8f7f3;
+}
+
+.booking-payment-section h3 {
+  margin: 0 0 12px;
+}
+
+.booking-payment-section p {
+  margin: 10px 0;
+}
+
+.booking-payment-section button {
+  margin: 8px 8px 0 0;
+}
+
+
+/* =================================
+   POSTLIGHT PREMIUM BUTTON DESIGN
+================================= */
+
+/* Main website buttons */
+.button {
+  border-radius: 9px;
+  padding: 13px 23px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: all 0.25s ease;
+}
+
+.button-dark {
+  background: #A83232;
+  color: white;
+  border: 1px solid #A83232;
+  box-shadow: 0 4px 10px rgba(168, 50, 50, 0.15);
+}
+
+.button-dark:hover {
+  background: #872727;
+  border-color: #872727;
+  box-shadow: 0 6px 15px rgba(168, 50, 50, 0.25);
+}
+
+
+
+.button-outline {
+  border: 1px solid #aab49e;
+  background: #fffefa;
+  color: #263527;
+}
+
+.button-outline:hover {
+  background: #e9eee2;
+  border-color: #526b50;
+  transform: translateY(-2px);
+}
+
+.button-plain:hover {
+  background: #e9eee2;
+  color: #263527;
+}
+
+/* General interactive buttons */
+button {
+  transition:
+    background-color 0.22s ease,
+    border-color 0.22s ease,
+    color 0.22s ease,
+    box-shadow 0.22s ease,
+    transform 0.22s ease;
+}
+
+button:focus-visible {
+  outline: 3px solid #a9b99e;
+  outline-offset: 3px;
+}
+
+/* Booking submission */
+.booking-submit,
+.auth-new-submit,
+.auth-submit {
+  border-radius: 9px;
+  background: #A83232;
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(168, 50, 50, 0.15);
+}
+
+.booking-submit:hover,
+.auth-new-submit:hover,
+.auth-submit:hover {
+  background: #872727;
+  box-shadow: 0 7px 17px rgba(168, 50, 50, 0.22);
+  transform: translateY(-2px);
+}
+
+/* Booking management actions */
+.booking-card-actions button {
+  border-radius: 8px;
+  font-weight: 700;
+  transition: all 0.22s ease;
+}
+
+.booking-approve:hover {
+  background: #267642;
+  box-shadow: 0 4px 12px rgba(22, 101, 52, 0.18);
+  transform: translateY(-2px);
+}
+
+.booking-reject:hover {
+  background: #b33b3b;
+  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.18);
+  transform: translateY(-2px);
+}
+
+/* Booking type selection */
+.booking-type-options button {
+  border-radius: 9px;
+  font-weight: 600;
+  transition: all 0.22s ease;
+}
+
+.booking-type-options button:not(.active):hover {
+  background: #f0f3eb;
+  border-color: #8da181;
+  color: #263527;
+  transform: translateY(-1px);
+}
+
+.booking-type-options button.active {
+  background: #263527;
+  border-color: #263527;
+  box-shadow: 0 4px 10px rgba(38, 53, 39, 0.15);
+}
+
+/* Calendar controls */
+.booking-calendar-controls button,
+.booking-calendar-views button {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.booking-calendar-controls button:hover:not(:disabled),
+.booking-calendar-views button:not(.active):hover {
+  background: #e9eee2;
+  border-color: #91a481;
+  color: #263527;
+}
+
+/* Chat suggestions */
+.suggestions button {
+  border-radius: 9px;
+  transition: all 0.22s ease;
+}
+
+.suggestions button:hover {
+  background: #eff3e9;
+  border-color: #aab99c;
+  transform: translateX(3px);
+}
+
+/* Footer and navigation interactions */
+.footer-policy-link,
+.booking-policy-link {
+  transition: color 0.2s ease;
+}
+
+/* Disabled buttons */
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Footer tagline styling */
+.footer-tagline {
+  margin: 0;
+  color: #ffffff;
+  font-family: Georgia, serif;
+  font-size: 20px;
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.7px;
+  line-height: 1.6;
+  text-align: center;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* Studio S footer branding */
+.footer-brand .brand-word {
+  color: #A83232;
+}
+
+.footer-brand .brand-s {
+  color: #E7B94F;
+  font-size: 1.15em;
+  font-weight: 700;
+}
+
+.booking-reference-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.booking-reference-row p {
+  margin: 0;
+}
+
+.booking-reference-row button {
+  padding: 7px 12px;
+  font-size: 12px;
 }

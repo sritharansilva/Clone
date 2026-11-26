@@ -3,7 +3,6 @@ import React from 'react';
 import {
   ArrowRight,
   LogOut,
-  Sparkles,
   CalendarDays,
   ClipboardList
 } from 'lucide-react';
@@ -13,7 +12,6 @@ export default function Header({
   session,
   onHome,
   onExplore,
-  onChat,
   onSignIn,
   onManageBookings,
   onMyBookings,
@@ -25,8 +23,8 @@ export default function Header({
     <header className="site-header">
       <div className="header-inner">
         <a className="brand" href="#home" onClick={onHome}>
-          Studio S<span className="brand-dot"></span>
-        </a>
+  <span className="brand-word">Studio</span><span className="brand-s">S</span>
+</a>
 {/* explore space */}
         <nav className="header-actions">
           <button className="nav-link" onClick={onExplore}>
@@ -54,10 +52,7 @@ export default function Header({
 )}
 
 
-          <button className="nav-link nav-chat" onClick={onChat}>
-            <Sparkles size={15} />
-          </button>
-
+          
           {session ? (
             <>
               <button className="avatar" title={session.user.email}>

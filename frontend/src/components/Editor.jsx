@@ -69,9 +69,9 @@ export default function Editor({
     <div className="modal editor-modal">
       <div className="modal-head">
         <div>
-          <div className="eyebrow muted">YOUR STORY</div>
+          <div className="eyebrow muted"></div>
           <h2>
-            {post ? 'Edit your post' : 'Write something new'}
+            {post ? 'Edit your post' : 'New spaces'}
           </h2>
         </div>
         <button className="icon-button" onClick={onClose} aria-label="Close">
@@ -79,8 +79,8 @@ export default function Editor({
         </button>
       </div>
       <form onSubmit={submit}>
-        <label>Title<input value={title} maxLength={160} required onChange={event => setTitle(event.target.value)} placeholder="Give your story a title" /></label>
-        <label>Your story<textarea value={body} maxLength={20000} required onChange={event => setBody(event.target.value)} placeholder="Start writing here..." rows={8} /></label>
+        <label>Title<input value={title} maxLength={160} required onChange={event => setTitle(event.target.value)} placeholder="New potential listing" /></label>
+        <label>Floor details<textarea value={body} maxLength={20000} required onChange={event => setBody(event.target.value)} placeholder="Start writing here..." rows={8} /></label>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, margin: '0 0 16px' }}>
           <label>Location
             <select style={fieldStyle} value={location} onChange={event => setLocation(event.target.value)}>
